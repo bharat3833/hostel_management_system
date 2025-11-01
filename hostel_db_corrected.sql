@@ -1,27 +1,32 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
+-- Create complaints table
 CREATE TABLE `complaints` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `student_name` varchar(255) NOT NULL,
   `reg_no` varchar(255) NOT NULL,
   `room_no` int(11) NOT NULL,
   `complaint` text NOT NULL,
   `status` enum('pending','in-progress','resolved') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- Create courses table
 CREATE TABLE `courses` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `course_code` varchar(255) NOT NULL,
   `course_sn` varchar(255) NOT NULL,
   `course_fn` varchar(255) NOT NULL,
-  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- Create hostelbookings table
 CREATE TABLE `hostelbookings` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `roomno` int(11) NOT NULL,
   `seater` int(11) NOT NULL,
   `feespm` int(11) NOT NULL,
@@ -44,22 +49,28 @@ CREATE TABLE `hostelbookings` (
   `address` text NOT NULL,
   `city` varchar(500) NOT NULL,
   `pin_code` int(11) NOT NULL,
-  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
+-- Create roomsdetails table
 CREATE TABLE `roomsdetails` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `seater` int(11) NOT NULL,
   `room_no` int(11) NOT NULL,
   `fees` int(11) NOT NULL,
-  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
+-- Create state_master table
 CREATE TABLE `state_master` (
-  `id` int(11) NOT NULL,
-  `State` varchar(38) NOT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `State` varchar(38) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+-- Insert state data
 INSERT INTO `state_master` (`id`, `State`) VALUES
 (1, 'Andhra Pradesh'),
 (2, 'Arunachal Pradesh'),
@@ -98,28 +109,62 @@ INSERT INTO `state_master` (`id`, `State`) VALUES
 (35, 'Puducherry'),
 (36, 'Ladakh');
 
+-- Create userregistration table
 CREATE TABLE `userregistration` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `registration_no` varchar(255) NOT NULL,
   `first_name` varchar(255) NOT NULL,
   `last_name` varchar(255) NOT NULL,
   `gender` varchar(255) NOT NULL,
   `contact_no` bigint(20) NOT NULL,
   `emailid` varchar(255) NOT NULL,
-  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- Create users table
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(300) NOT NULL,
-  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `entry_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
--- Roommate Preference Tables
+-- Insert admin user
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `entry_date`) VALUES
+(1, 'admin', 'admin@mail.com', '2b0c6e2034b6aa4ea3757321533b6741', '2020-09-08 20:31:45');
+
+-- NEW ROOMMATE MATCHING TABLES --
+
+-- Create branches table
+CREATE TABLE `branches` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `branch_code` varchar(10) NOT NULL,
+  `branch_name` varchar(255) NOT NULL,
+  `department` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `branch_code` (`branch_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Insert branches data
+INSERT INTO `branches` (`branch_code`, `branch_name`, `department`) VALUES
+('CSE', 'Computer Science Engineering', 'Computer Science'),
+('ECE', 'Electronics and Communication Engineering', 'Electronics'),
+('EEE', 'Electrical and Electronics Engineering', 'Electrical'),
+('ME', 'Mechanical Engineering', 'Mechanical'),
+('CE', 'Civil Engineering', 'Civil'),
+('IT', 'Information Technology', 'Computer Science'),
+('EIE', 'Electronics and Instrumentation Engineering', 'Electronics'),
+('CHE', 'Chemical Engineering', 'Chemical'),
+('AE', 'Aeronautical Engineering', 'Aeronautical'),
+('BME', 'Biomedical Engineering', 'Biomedical');
+
+-- Create student_preferences table
 CREATE TABLE `student_preferences` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `reg_no` varchar(255) NOT NULL,
   `lifestyle` enum('early-bird','night-owl','moderate') NOT NULL,
   `study_preference` enum('silent','music','discussion','flexible') NOT NULL,
@@ -136,53 +181,40 @@ CREATE TABLE `student_preferences` (
   `preferred_year_same` tinyint(1) DEFAULT 0,
   `priority_preferences` text,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reg_no` (`reg_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- Create roommate_matches table
 CREATE TABLE `roommate_matches` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `student1_reg_no` varchar(255) NOT NULL,
   `student2_reg_no` varchar(255) NOT NULL,
   `match_score` decimal(5,2) NOT NULL,
   `match_factors` text,
   `status` enum('suggested','accepted','rejected','pending') DEFAULT 'suggested',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_match` (`student1_reg_no`, `student2_reg_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- Create roommate_requests table
 CREATE TABLE `roommate_requests` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `requester_reg_no` varchar(255) NOT NULL,
   `requested_reg_no` varchar(255) NOT NULL,
   `message` text,
   `status` enum('pending','accepted','rejected') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Branch master table
-CREATE TABLE `branches` (
-  `id` int(11) NOT NULL,
-  `branch_code` varchar(10) NOT NULL,
-  `branch_name` varchar(255) NOT NULL,
-  `department` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- CREATE VIEWS --
 
--- Insert common engineering branches
-INSERT INTO `branches` (`branch_code`, `branch_name`, `department`) VALUES
-('CSE', 'Computer Science Engineering', 'Computer Science'),
-('ECE', 'Electronics and Communication Engineering', 'Electronics'),
-('EEE', 'Electrical and Electronics Engineering', 'Electrical'),
-('ME', 'Mechanical Engineering', 'Mechanical'),
-('CE', 'Civil Engineering', 'Civil'),
-('IT', 'Information Technology', 'Computer Science'),
-('EIE', 'Electronics and Instrumentation Engineering', 'Electronics'),
-('CHE', 'Chemical Engineering', 'Chemical'),
-('AE', 'Aeronautical Engineering', 'Aeronautical'),
-('BME', 'Biomedical Engineering', 'Biomedical');
-
--- Views for better data management
+-- Student profile view
 CREATE VIEW `student_profile_view` AS
 SELECT 
     h.regno,
@@ -208,6 +240,7 @@ FROM hostelbookings h
 LEFT JOIN student_preferences sp ON h.regno = sp.reg_no
 LEFT JOIN branches b ON sp.branch = b.branch_code;
 
+-- Compatibility matrix view
 CREATE VIEW `compatibility_matrix_view` AS
 SELECT 
     s1.reg_no as student1,
@@ -228,70 +261,6 @@ FROM student_preferences s1
 CROSS JOIN student_preferences s2
 WHERE s1.reg_no != s2.reg_no;
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `entry_date`) VALUES
-(1, 'admin', 'admin@mail.com', '2b0c6e2034b6aa4ea3757321533b6741', '2020-09-08 20:31:45');
-
-ALTER TABLE `complaints`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `courses`
-  ADD PRIMARY KEY (`id`);
-ALTER TABLE `hostelbookings`
-  ADD PRIMARY KEY (`id`);
-ALTER TABLE `roomsdetails`
-  ADD PRIMARY KEY (`id`);
-ALTER TABLE `state_master`
-  ADD PRIMARY KEY (`id`);
-ALTER TABLE `userregistration`
-  ADD PRIMARY KEY (`id`);
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `student_preferences`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `reg_no` (`reg_no`);
-
-ALTER TABLE `roommate_matches`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_match` (`student1_reg_no`, `student2_reg_no`);
-
-ALTER TABLE `roommate_requests`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `branches`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `branch_code` (`branch_code`);
-
-ALTER TABLE `complaints`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `student_preferences`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `roommate_matches`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `roommate_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `branches`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
-ALTER TABLE `courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `hostelbookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `roomsdetails`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `state_master`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
-
-ALTER TABLE `userregistration`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
+-- Set AUTO_INCREMENT starting values
+ALTER TABLE `state_master` AUTO_INCREMENT=37;
+ALTER TABLE `branches` AUTO_INCREMENT=11;

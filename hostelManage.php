@@ -80,13 +80,7 @@
                         <label for="food">Registration Number:</label>
                         <select name="reg_no" id="reg_no" class="custom-select browser-default" required>
                         <option value="">Select Registration Number</option>
-                        <?php 
-                        $usersql = "SELECT registration_no FROM `userregistration` where registration_no not in(select regno from hostelbookings)";
-                        $userResult = mysqli_query($conn, $usersql);
-                        while($userRow = mysqli_fetch_assoc($userResult)){
-                        ?>
-                        <option value="<?php echo $userRow['registration_no']; ?>"><?php echo $userRow['registration_no']; ?></option>
-                    <?php } ?>
+                        <!-- Registration numbers will be loaded dynamically based on room selection -->
                         </select>
                     </div> 
                             <div class="form-group col-md-4">
@@ -263,11 +257,71 @@ $(document).ready(function() {
 
 $(document).ready(function() {
         $('#roomNo').change(function(){
-        $('#duration').val('');
-        $('#total_ammount').val(''); 
-        $('#foodstatus').val('');        
+            // Clear previous values
+            $('#duration').val('');
+            $('#total_ammount').val(''); 
+            $('#foodstatus').val('');
+            
+            // Load students who have agreed on this room or all available students
+            var roomNo = $(this).val();
+            if(roomNo) {
+                // Show loading state
+                $('#reg_no').html('<option value="">Loading...</option>');
+                
+                // Fetch students for this room
+                $.ajax({
+                    url: 'get_room_students.php',
+                    method: 'post',
+                    data: {room_no: roomNo},
+                    dataType: 'json',
+                    success: function(response) {
+                        var options = '<option value="">Select Registration Number</option>';
+                        
+                        if(response.has_agreement) {
+                            // Show agreement message
+                            showAgreementMessage(response.message);
+                            
+                            // Add only the students in the agreement
+                            $.each(response.students, function(i, student) {
+                                options += '<option value="' + student.reg_no + '">' + student.reg_no + ' - ' + student.name + ' (Confirmed Roommate)</option>';
+                            });
+                        } else {
+                            // Add all available students
+                            $.each(response.students, function(i, student) {
+                                options += '<option value="' + student.reg_no + '">' + student.reg_no + ' - ' + student.name + '</option>';
+                            });
+                            
+                            // Hide any previous agreement message
+                            hideAgreementMessage();
+                        }
+                        
+                        $('#reg_no').html(options);
+                    },
+                    error: function() {
+                        $('#reg_no').html('<option value="">Error loading students</option>');
+                    }
+                });
+            } else {
+                $('#reg_no').html('<option value="">Select Registration Number</option>');
+                hideAgreementMessage();
+            }
         });
     });
+    
+    // Helper functions for agreement messages
+    function showAgreementMessage(message) {
+        // Remove any existing message
+        $('.agreement-message').remove();
+        
+        // Add new message
+        var alertHtml = '<div class="alert alert-info agreement-message"><i class="fa fa-handshake"></i> ' + 
+                       message + '</div>';
+        $('#roomNo').closest('.form-group').after(alertHtml);
+    }
+    
+    function hideAgreementMessage() {
+        $('.agreement-message').remove();
+    }
 $(document).ready(function() {
         $('#foodstatus').change(function(){
          var foodstatus = $(this).val(); 
@@ -307,6 +361,14 @@ $(document).ready(function() {
           $('#emailid').val(jsondata.emailid);
           $('#gender').val(jsondata.gender);
           $('#phone').val(jsondata.contact_no);          
+          
+          // If this is a roommate agreement, add confirmation
+          if ($('.agreement-message').length > 0 && reg_no) {
+            var student_name = jsondata.first_name + ' ' + jsondata.last_name;
+            var confirmationMessage = '<div class="alert alert-success mt-2 mb-2">Now booking room for <strong>' + 
+                                     student_name + '</strong> from confirmed roommate pair</div>';
+            $('#first_name').closest('.row').prepend('<div class="col-md-12">' + confirmationMessage + '</div>');
+          }
         }
      });
 });

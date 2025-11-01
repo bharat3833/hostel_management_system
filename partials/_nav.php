@@ -1,6 +1,3 @@
-
-
-
   <header class="header" id="header">
     <div class="header__toggle">
       <i class='bx bx-menu' id="header-toggle"></i>
@@ -43,6 +40,14 @@
                       <i class="fa fa-tasks"></i>
                       <span class="nav__name">Manage Courses</span>
                     </a>
+                    <a href="index.php?page=complaint" class="nav__link nav-complaint">
+                      <i class="fa fa-exclamation-circle"></i>
+                      <span class="nav__name">Manage Complaints</span>
+                    </a>
+                    <a href="index.php?page=roommate" class="nav__link nav-roommate">
+                      <i class="fa fa-user-friends"></i>
+                      <span class="nav__name">Roommate Matching</span>
+                    </a>
                 </div>
             </div>
             <div>
@@ -68,4 +73,3 @@
     <?php $page = isset($_GET['page']) ? $_GET['page'] :'home'; ?>
 	  $('.nav-<?php echo $page; ?>').addClass('active')
 </script>
-   
