@@ -325,12 +325,22 @@ foreach($roommate_pairs as $pair) {
                 
                 <div class="mt-4">
                     <h6>Quick Actions</h6>
-                    <button class="btn btn-outline-info btn-sm btn-block" onclick="exportPairs()">
-                        <i class="fa fa-download"></i> Export Pairs List
-                    </button>
-                    <button class="btn btn-outline-success btn-sm btn-block" onclick="viewCompatibilityReport()">
-                        <i class="fa fa-chart-line"></i> Compatibility Report
-                    </button>
+                    <div class="btn-group btn-block mb-2">
+                        <button class="btn btn-outline-info btn-sm" onclick="exportPairs('pdf')">
+                            <i class="fa fa-file-pdf"></i> Pairs PDF
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="exportPairs('excel')">
+                            <i class="fa fa-file-excel"></i> Pairs Excel
+                        </button>
+                    </div>
+                    <div class="btn-group btn-block">
+                        <button class="btn btn-outline-success btn-sm" onclick="exportCompatibilityReport('pdf')">
+                            <i class="fa fa-file-pdf"></i> Report PDF
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="exportCompatibilityReport('excel')">
+                            <i class="fa fa-file-excel"></i> Report Excel
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,17 +376,222 @@ foreach($roommate_pairs as $pair) {
     </div>
 </div>
 
+<!-- Include export libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script>
+// Store pairs data for export
+const pairsData = <?php echo json_encode($roommate_pairs); ?>;
+const stats = {
+    totalPairs: <?php echo $total_pairs; ?>,
+    highCompatibility: <?php echo $high_compatibility_pairs; ?>,
+    sameBranch: <?php echo $same_branch_pairs; ?>,
+    successRate: <?php echo $total_pairs > 0 ? round(($high_compatibility_pairs/$total_pairs)*100) : 0; ?>
+};
+
 function viewPairDetails(pairId) {
-    // This would show detailed compatibility analysis
-    alert('Detailed view for pair ID: ' + pairId + ' (feature can be expanded)');
+    const pair = pairsData.find(p => p.id == pairId);
+    if(pair) {
+        let details = `Roommate Pair Details\n\n`;
+        details += `Student 1: ${pair.student1_name} (${pair.student1_reg_no})\n`;
+        details += `Branch: ${pair.student1_branch_name || 'N/A'}\n`;
+        details += `Contact: ${pair.student1_contact}\n\n`;
+        details += `Student 2: ${pair.student2_name} (${pair.student2_reg_no})\n`;
+        details += `Branch: ${pair.student2_branch_name || 'N/A'}\n`;
+        details += `Contact: ${pair.student2_contact}\n\n`;
+        details += `Compatibility Score: ${pair.match_score}%\n`;
+        details += `Match Method: ${pair.match_factors}\n`;
+        details += `Paired On: ${new Date(pair.created_at).toLocaleDateString()}`;
+        alert(details);
+    }
 }
 
-function exportPairs() {
-    alert('Export functionality would generate CSV/PDF of all roommate pairs');
+function exportPairs(format) {
+    if(format === 'pdf') {
+        exportPairsPDF();
+    } else if(format === 'excel') {
+        exportPairsExcel();
+    }
 }
 
-function viewCompatibilityReport() {
-    alert('Compatibility report would show detailed analytics of successful pairings');
+function exportPairsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text('Roommate Pairs List', 14, 20);
+    
+    // Date
+    doc.setFontSize(10);
+    doc.text('Generated on: ' + new Date().toLocaleString(), 14, 28);
+    
+    // Prepare table data
+    const tableData = [];
+    pairsData.forEach(pair => {
+        tableData.push([
+            pair.student1_name + '\n' + pair.student1_reg_no,
+            pair.student2_name + '\n' + pair.student2_reg_no,
+            pair.match_score + '%',
+            pair.student1_branch_name || 'N/A',
+            new Date(pair.created_at).toLocaleDateString()
+        ]);
+    });
+    
+    // Add table
+    doc.autoTable({
+        head: [['Student 1', 'Student 2', 'Score', 'Branch', 'Paired On']],
+        body: tableData,
+        startY: 35,
+        theme: 'grid',
+        headStyles: { fillColor: [111, 202, 203] },
+        styles: { fontSize: 9 }
+    });
+    
+    doc.save('Roommate_Pairs_' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
+function exportPairsExcel() {
+    const wb = XLSX.utils.book_new();
+    
+    // Prepare data
+    const data = [['Student 1 Name', 'Student 1 Reg No', 'Student 2 Name', 'Student 2 Reg No', 'Compatibility Score', 'Branch', 'Contact 1', 'Contact 2', 'Paired On']];
+    
+    pairsData.forEach(pair => {
+        data.push([
+            pair.student1_name,
+            pair.student1_reg_no,
+            pair.student2_name,
+            pair.student2_reg_no,
+            pair.match_score + '%',
+            pair.student1_branch_name || 'N/A',
+            pair.student1_contact,
+            pair.student2_contact,
+            new Date(pair.created_at).toLocaleDateString()
+        ]);
+    });
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Roommate Pairs');
+    
+    XLSX.writeFile(wb, 'Roommate_Pairs_' + new Date().toISOString().split('T')[0] + '.xlsx');
+}
+
+function exportCompatibilityReport(format) {
+    if(format === 'pdf') {
+        exportCompatibilityPDF();
+    } else if(format === 'excel') {
+        exportCompatibilityExcel();
+    }
+}
+
+function exportCompatibilityPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text('Roommate Compatibility Report', 14, 20);
+    
+    // Date
+    doc.setFontSize(10);
+    doc.text('Generated on: ' + new Date().toLocaleString(), 14, 28);
+    
+    let yPos = 40;
+    
+    // Statistics
+    doc.setFontSize(14);
+    doc.text('Overall Statistics', 14, yPos);
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.text('Total Pairs: ' + stats.totalPairs, 14, yPos);
+    yPos += 7;
+    doc.text('High Compatibility Pairs (≥70%): ' + stats.highCompatibility, 14, yPos);
+    yPos += 7;
+    doc.text('Same Branch Pairs: ' + stats.sameBranch, 14, yPos);
+    yPos += 7;
+    doc.text('Success Rate: ' + stats.successRate + '%', 14, yPos);
+    yPos += 15;
+    
+    // Compatibility breakdown
+    doc.setFontSize(14);
+    doc.text('Compatibility Breakdown', 14, yPos);
+    yPos += 10;
+    
+    const excellent = pairsData.filter(p => p.match_score >= 70).length;
+    const good = pairsData.filter(p => p.match_score >= 40 && p.match_score < 70).length;
+    const fair = pairsData.filter(p => p.match_score < 40).length;
+    
+    const breakdownData = [
+        ['Excellent (≥70%)', excellent, Math.round((excellent/stats.totalPairs)*100) + '%'],
+        ['Good (40-69%)', good, Math.round((good/stats.totalPairs)*100) + '%'],
+        ['Fair (<40%)', fair, Math.round((fair/stats.totalPairs)*100) + '%']
+    ];
+    
+    doc.autoTable({
+        head: [['Category', 'Count', 'Percentage']],
+        body: breakdownData,
+        startY: yPos,
+        theme: 'grid',
+        headStyles: { fillColor: [40, 167, 69] }
+    });
+    
+    doc.save('Compatibility_Report_' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
+function exportCompatibilityExcel() {
+    const wb = XLSX.utils.book_new();
+    
+    // Sheet 1: Statistics
+    const statsData = [
+        ['Metric', 'Value'],
+        ['Total Pairs', stats.totalPairs],
+        ['High Compatibility Pairs (≥70%)', stats.highCompatibility],
+        ['Same Branch Pairs', stats.sameBranch],
+        ['Success Rate', stats.successRate + '%']
+    ];
+    
+    const ws1 = XLSX.utils.aoa_to_sheet(statsData);
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+    
+    // Sheet 2: Compatibility Breakdown
+    const excellent = pairsData.filter(p => p.match_score >= 70).length;
+    const good = pairsData.filter(p => p.match_score >= 40 && p.match_score < 70).length;
+    const fair = pairsData.filter(p => p.match_score < 40).length;
+    
+    const breakdownData = [
+        ['Category', 'Count', 'Percentage'],
+        ['Excellent (≥70%)', excellent, Math.round((excellent/stats.totalPairs)*100) + '%'],
+        ['Good (40-69%)', good, Math.round((good/stats.totalPairs)*100) + '%'],
+        ['Fair (<40%)', fair, Math.round((fair/stats.totalPairs)*100) + '%']
+    ];
+    
+    const ws2 = XLSX.utils.aoa_to_sheet(breakdownData);
+    XLSX.utils.book_append_sheet(wb, ws2, 'Compatibility Breakdown');
+    
+    // Sheet 3: Detailed Pairs
+    const detailsData = [['Student 1', 'Reg No 1', 'Student 2', 'Reg No 2', 'Score', 'Category', 'Branch', 'Paired On']];
+    
+    pairsData.forEach(pair => {
+        const category = pair.match_score >= 70 ? 'Excellent' : (pair.match_score >= 40 ? 'Good' : 'Fair');
+        detailsData.push([
+            pair.student1_name,
+            pair.student1_reg_no,
+            pair.student2_name,
+            pair.student2_reg_no,
+            pair.match_score + '%',
+            category,
+            pair.student1_branch_name || 'N/A',
+            new Date(pair.created_at).toLocaleDateString()
+        ]);
+    });
+    
+    const ws3 = XLSX.utils.aoa_to_sheet(detailsData);
+    XLSX.utils.book_append_sheet(wb, ws3, 'Detailed Pairs');
+    
+    XLSX.writeFile(wb, 'Compatibility_Report_' + new Date().toISOString().split('T')[0] + '.xlsx');
 }
 </script>

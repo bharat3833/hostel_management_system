@@ -1,0 +1,410 @@
+===============================================
+DISCIPLINARY RECORDS SYSTEM - SETUP GUIDE
+===============================================
+
+🎯 FEATURE OVERVIEW:
+Complete system for tracking and managing student disciplinary actions
+including warnings, fines, suspensions, and expulsions.
+
+===============================================
+INSTALLATION STEPS
+===============================================
+
+STEP 1: DATABASE SETUP
+-----------------------
+1. Open phpMyAdmin
+2. Select your hostel database
+3. Go to "Import" tab
+4. Choose file: disciplinary_records.sql
+5. Click "Go" to import
+
+This will create:
+✅ disciplinary_records table (main records)
+✅ violation_categories table (predefined violations)
+✅ disciplinary_records_view (comprehensive view)
+
+STEP 2: VERIFY INSTALLATION
+----------------------------
+Run these queries to verify:
+
+-- Check tables exist
+SHOW TABLES LIKE '%disciplinary%';
+
+-- Check violation categories
+SELECT * FROM violation_categories;
+
+-- Check view
+SELECT * FROM disciplinary_records_view LIMIT 1;
+
+STEP 3: ACCESS THE FEATURE
+---------------------------
+1. Login as admin
+2. Click "Disciplinary Records" in sidebar
+3. Start adding records!
+
+===============================================
+FEATURES INCLUDED
+===============================================
+
+📝 RECORD MANAGEMENT:
+---------------------
+✅ Add disciplinary records
+✅ Track incident details
+✅ Assign severity levels
+✅ Record actions taken
+✅ Update status (open/resolved/under review/appealed)
+✅ Delete records
+
+📊 VIOLATION CATEGORIES:
+------------------------
+Pre-configured categories:
+1. Noise Disturbance (Minor)
+2. Unauthorized Guest (Moderate)
+3. Damage to Property (Major)
+4. Substance Abuse (Critical)
+5. Fighting/Violence (Critical)
+6. Theft (Major)
+7. Curfew Violation (Moderate)
+8. Cleanliness Issues (Minor)
+9. Smoking (Moderate)
+10. Ragging (Critical)
+11. Unauthorized Absence (Moderate)
+12. Disrespect to Staff (Moderate)
+13. Misuse of Facilities (Minor)
+14. Late Fee Payment (Minor)
+15. Other (Minor)
+
+⚖️ ACTION TYPES:
+----------------
+✅ Warning - Verbal/written warning
+✅ Fine - Monetary penalty
+✅ Suspension - Temporary hostel ban
+✅ Expulsion - Permanent removal
+✅ Other - Custom actions
+
+🎚️ SEVERITY LEVELS:
+-------------------
+✅ Minor - Low impact violations
+✅ Moderate - Medium impact violations
+✅ Major - Serious violations
+✅ Critical - Severe violations requiring immediate action
+
+📈 STATISTICS DASHBOARD:
+------------------------
+✅ Total Records count
+✅ Open Cases count
+✅ Critical Cases count
+✅ Pending Fines amount
+
+🔍 FILTERING & SEARCH:
+----------------------
+✅ Filter by severity
+✅ Filter by status
+✅ Filter by action type
+✅ Search by student name/reg no
+
+📤 EXPORT OPTIONS:
+------------------
+✅ Export to PDF
+✅ Export to Excel
+✅ Comprehensive reports
+
+===============================================
+RECORD FIELDS
+===============================================
+
+BASIC INFORMATION:
+------------------
+- Student Registration Number *
+- Incident Date *
+- Incident Time
+- Violation Category *
+- Severity Level *
+- Action Type *
+
+INCIDENT DETAILS:
+-----------------
+- Description *
+- Location
+- Reported By
+- Witnesses
+- Action Taken *
+
+FINE DETAILS (if applicable):
+------------------------------
+- Fine Amount
+- Fine Paid Status (yes/no/partial)
+- Fine Paid Date
+
+SUSPENSION DETAILS (if applicable):
+-----------------------------------
+- Suspension Start Date
+- Suspension End Date
+
+FOLLOW-UP:
+----------
+- Parent Notified (yes/no)
+- Parent Notification Date
+- Follow-up Required (yes/no)
+- Follow-up Date
+- Follow-up Notes
+
+STATUS TRACKING:
+----------------
+- Status (open/resolved/under_review/appealed)
+- Resolved Date
+- Remarks
+- Recorded By
+- Created At
+- Updated At
+
+===============================================
+HOW TO USE
+===============================================
+
+ADDING A RECORD:
+----------------
+1. Select student from dropdown
+2. Choose incident date and time
+3. Select violation category
+4. Set severity level
+5. Choose action type
+6. Fill in description
+7. Add location and reporter details
+8. If fine: Enter amount
+9. If suspension: Enter dates
+10. Describe action taken
+11. Add remarks if needed
+12. Click "Add Record"
+
+VIEWING RECORDS:
+----------------
+1. All records shown in table
+2. Click eye icon to view full details
+3. Use filters to narrow down results
+4. Search by student name
+
+UPDATING STATUS:
+----------------
+1. Click edit icon on record
+2. Change status as needed
+3. Mark fines as paid
+4. Add follow-up notes
+
+EXPORTING DATA:
+---------------
+1. Click "PDF" for PDF report
+2. Click "Excel" for Excel spreadsheet
+3. Files download automatically
+
+===============================================
+STATISTICS & REPORTS
+===============================================
+
+DASHBOARD CARDS:
+----------------
+📊 Total Records - All disciplinary records
+⚠️ Open Cases - Unresolved cases
+🚨 Critical Cases - Severe violations
+💰 Pending Fines - Unpaid fine amounts
+
+EXPORT REPORTS:
+---------------
+PDF Report includes:
+- All records in table format
+- Date, student, violation, severity, action, status
+
+Excel Report includes:
+- Comprehensive data with all fields
+- Date, student details, violation, description
+- Action taken, fine amount, status, recorded by
+
+===============================================
+SEVERITY GUIDELINES
+===============================================
+
+MINOR (Info Badge):
+-------------------
+- First-time offenses
+- Minor rule violations
+- Cleanliness issues
+- Late fee payments
+Action: Warning, small fine
+
+MODERATE (Warning Badge):
+-------------------------
+- Repeated minor offenses
+- Curfew violations
+- Unauthorized guests
+- Disrespect to staff
+Action: Warning, fine, parent notification
+
+MAJOR (Danger Badge):
+---------------------
+- Property damage
+- Theft
+- Serious rule violations
+Action: Fine, suspension, parent notification
+
+CRITICAL (Dark Badge):
+----------------------
+- Violence/fighting
+- Substance abuse
+- Ragging
+- Repeated major offenses
+Action: Suspension, expulsion, police involvement
+
+===============================================
+BEST PRACTICES
+===============================================
+
+DOCUMENTATION:
+--------------
+✅ Record incidents immediately
+✅ Be specific in descriptions
+✅ Include witness information
+✅ Document all actions taken
+✅ Keep remarks professional
+
+FOLLOW-UP:
+----------
+✅ Set follow-up dates for serious cases
+✅ Track fine payments
+✅ Monitor suspension periods
+✅ Update status regularly
+
+COMMUNICATION:
+--------------
+✅ Notify parents for major/critical cases
+✅ Document all notifications
+✅ Keep students informed of status
+✅ Maintain confidentiality
+
+FAIRNESS:
+---------
+✅ Apply rules consistently
+✅ Consider context and circumstances
+✅ Allow appeals for serious actions
+✅ Document all decisions
+
+===============================================
+TROUBLESHOOTING
+===============================================
+
+ISSUE: Tables not created
+SOLUTION: Re-run disciplinary_records.sql file
+
+ISSUE: Navigation link not showing
+SOLUTION: Clear browser cache, check admin login
+
+ISSUE: Student dropdown empty
+SOLUTION: Verify userregistration table has data
+
+ISSUE: Export not working
+SOLUTION: Check internet connection (CDN libraries)
+
+ISSUE: Cannot delete record
+SOLUTION: Check database permissions
+
+===============================================
+DATABASE STRUCTURE
+===============================================
+
+TABLE: disciplinary_records
+----------------------------
+- id (Primary Key)
+- student_reg_no (Foreign Key)
+- incident_date, incident_time
+- incident_type (enum)
+- severity (enum)
+- violation_category
+- description, location, reported_by
+- witnesses, action_taken
+- fine_amount, fine_paid, fine_paid_date
+- suspension_start_date, suspension_end_date
+- parent_notified, parent_notification_date
+- follow_up_required, follow_up_date, follow_up_notes
+- status (enum)
+- resolved_date, remarks
+- recorded_by
+- created_at, updated_at
+
+TABLE: violation_categories
+----------------------------
+- id (Primary Key)
+- category_name
+- category_code (Unique)
+- description
+- default_severity
+- is_active
+
+VIEW: disciplinary_records_view
+--------------------------------
+Joins disciplinary_records with:
+- userregistration (student details)
+- hostelbookings (room info)
+- violation_categories (category details)
+
+===============================================
+FILES CREATED
+===============================================
+
+✅ disciplinary_records.sql - Database schema
+✅ disciplinaryManage.php - Main UI page
+✅ partials/_disciplinaryManage.php - Backend handler
+✅ partials/_nav.php - Updated navigation
+✅ DISCIPLINARY_RECORDS_SETUP.txt - This guide
+
+===============================================
+SECURITY NOTES
+===============================================
+
+✅ All inputs sanitized with mysqli_real_escape_string
+✅ Admin login required to access
+✅ Session-based authentication
+✅ SQL injection protection
+✅ XSS prevention in output
+
+===============================================
+SUPPORT & CUSTOMIZATION
+===============================================
+
+ADDING NEW VIOLATION CATEGORIES:
+---------------------------------
+INSERT INTO violation_categories 
+(category_name, category_code, description, default_severity) 
+VALUES 
+('New Category', 'NEW_CODE', 'Description', 'moderate');
+
+CUSTOMIZING SEVERITY LEVELS:
+-----------------------------
+Edit the enum values in disciplinary_records table
+
+CUSTOMIZING ACTION TYPES:
+--------------------------
+Edit the enum values in disciplinary_records table
+
+CHANGING COLORS:
+----------------
+Modify the inline styles in disciplinaryManage.php
+or add CSS rules in styles.css
+
+===============================================
+SUMMARY
+===============================================
+
+✅ Complete disciplinary tracking system
+✅ Pre-configured violation categories
+✅ Multiple severity levels
+✅ Fine and suspension management
+✅ Status tracking and follow-ups
+✅ Export to PDF and Excel
+✅ Comprehensive filtering and search
+✅ Statistics dashboard
+✅ Easy to use interface
+
+The Disciplinary Records system is now ready to use!
+Track student violations, manage actions, and maintain
+a comprehensive record of all disciplinary matters.
+
+===============================================

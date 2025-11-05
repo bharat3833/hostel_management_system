@@ -1,0 +1,384 @@
+===============================================
+ATTENDANCE CALCULATION - CORRECTED VERSION
+===============================================
+
+🎯 ISSUES FIXED:
+1. ✅ 12 AM rule logic corrected
+2. ✅ Uses actual check-in records (not just expected)
+3. ✅ Date range calculation fixed
+4. ✅ Proper day counting (inclusive)
+
+===============================================
+CORRECTED LOGIC
+===============================================
+
+RULE: Vacation Starts NEXT Day After Checkout
+----------------------------------------------
+Why? Because if a student checks out on Nov 5,
+they were PRESENT on Nov 5. Vacation absence
+starts from Nov 6.
+
+Example:
+- Checkout: Nov 5, 2025 (any time)
+- Student was present: Nov 5 ✅
+- Vacation starts: Nov 6
+- Vacation ends: Dec 5 (day before return)
+- Return: Dec 6
+
+===============================================
+CALCULATION EXAMPLE
+===============================================
+
+SCENARIO: Vacation from Nov 5 to Dec 6, 2025
+--------------------------------------------
+
+Checkout: Nov 5, 2025
+Return: Dec 6, 2025
+
+NOVEMBER 2025:
+--------------
+Total days: 30
+Checkout: Nov 5 (student was PRESENT)
+Vacation starts: Nov 6
+Vacation in Nov: Nov 6 to Nov 30
+Vacation days: 25 days
+Present days: 30 - 25 = 5 days
+Attendance: 5/30 = 16.67%
+
+Breakdown:
+Nov 1-5: Present (5 days) ✅
+Nov 6-30: Vacation (25 days) ✈️
+
+DECEMBER 2025:
+--------------
+Total days: 31
+Vacation continues: Dec 1 to Dec 5
+Return: Dec 6 (student is PRESENT)
+Vacation days: 5 days
+Present days: 31 - 5 = 26 days
+Attendance: 26/31 = 83.87%
+
+Breakdown:
+Dec 1-5: Vacation (5 days) ✈️
+Dec 6-31: Present (26 days) ✅
+
+===============================================
+WHAT WAS WRONG BEFORE
+===============================================
+
+ISSUE 1: 12 AM Rule Logic
+--------------------------
+Old code:
+if($checkout_time >= '00:00:00') {
+    $start_date = next day;
+}
+
+Problem: ALL times are >= '00:00:00'!
+This made vacation ALWAYS start next day,
+even when we didn't want it to.
+
+Fix: Simplified - vacation ALWAYS starts next day
+because student was present on checkout day.
+
+ISSUE 2: Only Used Expected Return
+-----------------------------------
+Old code: Only looked at expected_return_date
+
+Problem: If student returned early or late,
+calculation was wrong.
+
+Fix: Now checks actual check-in records first,
+then falls back to expected return.
+
+ISSUE 3: Date Counting
+-----------------------
+Old code: 
+$days = $interval->days + 1;
+
+Problem: Sometimes double-counted days
+
+Fix: Proper inclusive counting with +1 day
+to end date before diff.
+
+===============================================
+NEW CALCULATION FLOW
+===============================================
+
+STEP 1: Get Checkout Record
+----------------------------
+- Find vacation checkout for student
+- Get checkout date and time
+
+STEP 2: Determine Vacation Start
+---------------------------------
+- Vacation starts: checkout_date + 1 day
+- (Student was present on checkout day)
+
+STEP 3: Determine Vacation End
+-------------------------------
+Priority:
+1. Actual check-in date - 1 day (if exists)
+2. Expected return date (if no check-in)
+3. Current date (if still on vacation)
+
+STEP 4: Calculate Overlap with Month
+-------------------------------------
+- Month start: YYYY-MM-01
+- Month end: YYYY-MM-[last day]
+- Actual start: MAX(vacation start, month start)
+- Actual end: MIN(vacation end, month end)
+
+STEP 5: Count Days
+-------------------
+- Create DateTime objects
+- Add 1 day to end date
+- Calculate difference
+- Result = vacation days in that month
+
+STEP 6: Calculate Attendance
+-----------------------------
+- Present days = Total days - Vacation days
+- Attendance % = (Present / Total) × 100
+
+===============================================
+EXAMPLE CALCULATIONS
+===============================================
+
+EXAMPLE 1: Simple One-Month Vacation
+-------------------------------------
+Checkout: Nov 10, 2025
+Return: Nov 20, 2025
+
+November:
+- Checkout: Nov 10 (present)
+- Vacation: Nov 11 to Nov 19 (9 days)
+- Return: Nov 20 (present)
+- Total: 30 days
+- Vacation: 9 days
+- Present: 21 days
+- Attendance: 70%
+
+EXAMPLE 2: Multi-Month Vacation
+--------------------------------
+Checkout: Nov 25, 2025
+Return: Jan 5, 2026
+
+November:
+- Vacation: Nov 26-30 (5 days)
+- Present: 25 days
+- Attendance: 83.33%
+
+December:
+- Vacation: Dec 1-31 (31 days)
+- Present: 0 days
+- Attendance: 0%
+
+January:
+- Vacation: Jan 1-4 (4 days)
+- Present: 27 days
+- Attendance: 87.10%
+
+EXAMPLE 3: Still on Vacation
+-----------------------------
+Checkout: Nov 20, 2025
+No return yet (today is Nov 25)
+
+November:
+- Vacation: Nov 21-25 (5 days so far)
+- Present: 20 days
+- Attendance: 80%
+
+(Will update when student returns)
+
+===============================================
+SQL QUERY IMPROVEMENTS
+===============================================
+
+OLD QUERY:
+----------
+Only got checkout records with expected return
+
+NEW QUERY:
+----------
+Gets checkout AND finds matching check-in:
+
+SELECT cc1.*, 
+       (SELECT action_date 
+        FROM hostel_checkin_checkout cc2 
+        WHERE cc2.reg_no = cc1.reg_no 
+        AND cc2.pass_type = 'vacation' 
+        AND cc2.action_type = 'check-in'
+        AND cc2.action_date > cc1.action_date
+        ORDER BY cc2.action_date ASC 
+        LIMIT 1) as actual_return_date
+FROM hostel_checkin_checkout cc1
+WHERE cc1.pass_type = 'vacation' 
+AND cc1.action_type = 'check-out'
+
+This gives us ACTUAL return, not just expected!
+
+===============================================
+VACATION DETAILS TABLE
+===============================================
+
+Now shows:
+----------
+| Checkout Date | Vacation Start | Vacation End | Days | Destination |
+|---------------|----------------|--------------|------|-------------|
+| 05 Nov (2PM)  | 06 Nov         | 05 Dec       | 30   | Home        |
+
+Clearly shows:
+- When student checked out
+- When vacation absence started
+- When vacation ended
+- How many days absent
+- Where they went
+
+===============================================
+EDGE CASES HANDLED
+===============================================
+
+CASE 1: Checkout and Return Same Day
+-------------------------------------
+Checkout: Nov 10, 10:00 AM
+Return: Nov 10, 8:00 PM
+
+Result: 0 vacation days
+(Vacation would start Nov 11, but returned Nov 10)
+
+CASE 2: No Return Date
+-----------------------
+Checkout: Nov 10
+No return yet
+
+Result: Vacation from Nov 11 to current date
+
+CASE 3: Early Return
+--------------------
+Checkout: Nov 10
+Expected: Nov 20
+Actual: Nov 15
+
+Result: Uses Nov 15 (actual), not Nov 20
+
+CASE 4: Late Return
+-------------------
+Checkout: Nov 10
+Expected: Nov 20
+Actual: Nov 25
+
+Result: Uses Nov 25 (actual), not Nov 20
+
+===============================================
+TESTING SCENARIOS
+===============================================
+
+TEST 1: Your Example
+--------------------
+Vacation: Nov 5 to Dec 6, 2025
+
+November:
+✅ Expected: 16.67% (5 present, 25 vacation)
+✅ Calculation: (5/30) × 100 = 16.67%
+
+December:
+✅ Expected: 83.87% (26 present, 5 vacation)
+✅ Calculation: (26/31) × 100 = 83.87%
+
+TEST 2: Full Month Vacation
+----------------------------
+Vacation: Nov 1 to Nov 30
+
+November:
+✅ Expected: 3.33% (1 present - checkout day, 29 vacation)
+✅ Calculation: (1/30) × 100 = 3.33%
+
+TEST 3: No Vacation
+-------------------
+No vacation records
+
+November:
+✅ Expected: 100%
+✅ Calculation: (30/30) × 100 = 100%
+
+===============================================
+BENEFITS OF FIX
+===============================================
+
+✅ Accurate Calculations
+   - Correct day counting
+   - Proper date ranges
+   - Handles all edge cases
+
+✅ Uses Actual Data
+   - Checks real check-in records
+   - Not just expected dates
+   - More accurate tracking
+
+✅ Clear Display
+   - Shows checkout date
+   - Shows vacation start/end
+   - Easy to verify
+
+✅ Handles Multi-Month
+   - Correctly splits across months
+   - Only counts relevant days
+   - Accurate per-month %
+
+✅ Transparent Logic
+   - Easy to understand
+   - Easy to verify
+   - Easy to debug
+
+===============================================
+SUMMARY OF CHANGES
+===============================================
+
+FILE: attendanceManage.php
+
+CHANGED:
+1. ✅ Simplified 12 AM rule
+   - Vacation always starts next day
+   - Student present on checkout day
+
+2. ✅ Added actual check-in lookup
+   - Subquery finds matching return
+   - Uses actual over expected
+
+3. ✅ Fixed date counting
+   - Proper inclusive range
+   - Correct day calculation
+
+4. ✅ Enhanced vacation details
+   - Shows checkout date/time
+   - Shows vacation start
+   - Shows vacation end
+   - Clear breakdown
+
+===============================================
+VERIFICATION
+===============================================
+
+To verify calculations:
+1. Check vacation records in database
+2. Note checkout date
+3. Add 1 day = vacation start
+4. Find return date (actual or expected)
+5. Subtract 1 day = vacation end
+6. Count days in month range
+7. Verify against displayed result
+
+Example:
+Checkout: Nov 5
+Vacation: Nov 6 to Dec 5
+November portion: Nov 6-30 = 25 days ✅
+December portion: Dec 1-5 = 5 days ✅
+
+===============================================
+
+READY TO USE! 🚀
+
+Your attendance calculation is now
+accurate and reliable!
+
+===============================================

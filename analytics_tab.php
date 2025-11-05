@@ -312,9 +312,126 @@ if($high_compatibility_result) {
     </div>
 </div>
 
+<!-- Include export libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script>
 function exportAnalytics(format) {
-    alert('Export to ' + format.toUpperCase() + ' functionality would be implemented here');
+    if(format === 'pdf') {
+        exportToPDF();
+    } else if(format === 'excel') {
+        exportToExcel();
+    }
+}
+
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Roommate Matching Analytics Report', 14, 20);
+    
+    // Add date
+    doc.setFontSize(10);
+    doc.text('Generated on: ' + new Date().toLocaleString(), 14, 28);
+    
+    let yPos = 40;
+    
+    // Get statistics
+    const stats = document.querySelectorAll('.stat-card');
+    doc.setFontSize(14);
+    doc.text('Statistics Overview', 14, yPos);
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    stats.forEach((stat, index) => {
+        const title = stat.querySelector('h6').textContent.trim();
+        const value = stat.querySelector('h3').textContent.trim();
+        doc.text(title + ': ' + value, 14, yPos);
+        yPos += 7;
+    });
+    
+    yPos += 10;
+    
+    // Get compatibility distribution table
+    const compatTable = document.querySelector('.table');
+    if(compatTable) {
+        const headers = [];
+        const rows = [];
+        
+        // Get headers
+        compatTable.querySelectorAll('thead th').forEach(th => {
+            headers.push(th.textContent.trim());
+        });
+        
+        // Get rows
+        compatTable.querySelectorAll('tbody tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => {
+                row.push(td.textContent.trim());
+            });
+            rows.push(row);
+        });
+        
+        // Add table to PDF
+        doc.autoTable({
+            head: [headers],
+            body: rows,
+            startY: yPos,
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246] }
+        });
+    }
+    
+    // Save PDF
+    doc.save('Roommate_Analytics_' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
+function exportToExcel() {
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Sheet 1: Statistics
+    const statsData = [['Metric', 'Value']];
+    document.querySelectorAll('.stat-card').forEach(stat => {
+        const title = stat.querySelector('h6').textContent.trim();
+        const value = stat.querySelector('h3').textContent.trim();
+        statsData.push([title, value]);
+    });
+    
+    const ws1 = XLSX.utils.aoa_to_sheet(statsData);
+    XLSX.utils.book_append_sheet(wb, ws1, 'Statistics');
+    
+    // Sheet 2: Compatibility Distribution
+    const compatTable = document.querySelector('.table');
+    if(compatTable) {
+        const tableData = [];
+        
+        // Headers
+        const headers = [];
+        compatTable.querySelectorAll('thead th').forEach(th => {
+            headers.push(th.textContent.trim());
+        });
+        tableData.push(headers);
+        
+        // Rows
+        compatTable.querySelectorAll('tbody tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => {
+                row.push(td.textContent.trim());
+            });
+            tableData.push(row);
+        });
+        
+        const ws2 = XLSX.utils.aoa_to_sheet(tableData);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Compatibility Distribution');
+    }
+    
+    // Save Excel file
+    XLSX.writeFile(wb, 'Roommate_Analytics_' + new Date().toISOString().split('T')[0] + '.xlsx');
 }
 
 function refreshAnalytics() {

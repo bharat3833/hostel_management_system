@@ -35,6 +35,7 @@ if($adminloggedin || $studentView) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/dark-mode.css">
 </head>
 <body id="body-pd">
     <?php $page = isset($_GET['page']) ? $_GET['page'] :'home'; ?>
@@ -100,6 +101,7 @@ if($adminloggedin || $studentView) {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>         
     <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/theme-toggle.js"></script>
 </body>
 </html>
 <?php

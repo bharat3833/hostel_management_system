@@ -2,8 +2,13 @@
     <div class="header__toggle">
       <i class='bx bx-menu' id="header-toggle"></i>
     </div>
-    <div class="header__img">
-      <img src="img/profilePic.jpg" alt="Profile"/>
+    <div style="display: flex; align-items: center;">
+      <div class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode (Ctrl+Shift+D)">
+        <i class="fas fa-moon"></i>
+      </div>
+      <div class="header__img">
+        <img src="img/profilePic.jpg" alt="Profile"/>
+      </div>
     </div>
   </header>
 
@@ -48,6 +53,14 @@
                     <a href="index.php?page=checkinManage" class="nav__link nav-checkinManage">
                       <i class="fa fa-door-open"></i>
                       <span class="nav__name">Check-in/Check-out</span>
+                    </a>
+                    <a href="index.php?page=attendanceManage" class="nav__link nav-attendanceManage">
+                      <i class="fa fa-calendar-check"></i>
+                      <span class="nav__name">Attendance</span>
+                    </a>
+                    <a href="index.php?page=disciplinaryManage" class="nav__link nav-disciplinaryManage">
+                      <i class="fa fa-gavel"></i>
+                      <span class="nav__name">Disciplinary Records</span>
                     </a>
                     <?php endif; ?>
                     

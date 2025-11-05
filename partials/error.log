@@ -438,3 +438,48 @@
 
 [05-Nov-2025 06:23:33 Europe/Berlin] Attempting to move file to: C:/xampp/htdocs/hostel-management-system/img/person-6.jpg
 [05-Nov-2025 06:23:33 Europe/Berlin] File uploaded successfully
+[05-Nov-2025 07:20:37 Europe/Berlin] Registration data: Array
+(
+    [registration] => REG-007
+    [firstName] => sai
+    [lastName] => videsh
+    [email] => 523cs0014@iiitk.ac.in
+    [phone] => 7396733009
+    [gender] => Male
+    [createUser] => 
+)
+
+[05-Nov-2025 07:20:37 Europe/Berlin] SQL query: INSERT INTO `userregistration` 
+                    (`registration_no`, `first_name`, `last_name`, `emailid`, `contact_no`, `gender`) 
+                    VALUES ('REG-007', 'sai', 'videsh', '523cs0014@iiitk.ac.in', '7396733009', 'Male')
+[05-Nov-2025 11:50:58 Europe/Berlin] Photo upload started for user ID: 5
+[05-Nov-2025 11:50:58 Europe/Berlin] Image check result: Array
+(
+    [0] => 1280
+    [1] => 720
+    [2] => 2
+    [3] => width="1280" height="720"
+    [bits] => 8
+    [channels] => 3
+    [mime] => image/jpeg
+)
+
+[05-Nov-2025 11:50:58 Europe/Berlin] Attempting to move file to: C:/xampp/htdocs/hostel-management-system/img/person-5.jpg
+[05-Nov-2025 11:50:58 Europe/Berlin] File uploaded successfully
+[05-Nov-2025 11:51:04 Europe/Berlin] Attempting to remove photo: C:/xampp/htdocs/hostel-management-system/img/person-5.jpg
+[05-Nov-2025 11:51:04 Europe/Berlin] File exists, attempting to delete
+[05-Nov-2025 11:51:04 Europe/Berlin] File deleted successfully
+[05-Nov-2025 11:51:14 Europe/Berlin] Photo upload started for user ID: 5
+[05-Nov-2025 11:51:14 Europe/Berlin] Image check result: Array
+(
+    [0] => 1280
+    [1] => 720
+    [2] => 2
+    [3] => width="1280" height="720"
+    [bits] => 8
+    [channels] => 3
+    [mime] => image/jpeg
+)
+
+[05-Nov-2025 11:51:14 Europe/Berlin] Attempting to move file to: C:/xampp/htdocs/hostel-management-system/img/person-5.jpg
+[05-Nov-2025 11:51:14 Europe/Berlin] File uploaded successfully

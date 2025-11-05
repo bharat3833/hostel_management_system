@@ -424,6 +424,27 @@ a{
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Statistics cards with Bootstrap background colors */
+.card.bg-info {
+  background: #17a2b8 !important;
+}
+
+.card.bg-success {
+  background: #28a745 !important;
+}
+
+.card.bg-warning {
+  background: #ffc107 !important;
+}
+
+.card.bg-primary {
+  background: #007bff !important;
+}
+
+.card.bg-danger {
+  background: #dc3545 !important;
+}
+
 .card:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 35px rgba(2,6,23,.12);

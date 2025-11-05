@@ -1,0 +1,141 @@
+===============================================
+CHECK-IN/CHECK-OUT STATISTICS BOX FIX
+===============================================
+
+🎯 ISSUE FIXED:
+Statistics boxes in Check-in/Check-out page were
+not visible in light mode (white background).
+
+===============================================
+WHAT WAS WRONG
+===============================================
+
+PROBLEM:
+--------
+In light mode, the statistics boxes had:
+- White background (invisible on white page)
+- White text (invisible on white background)
+- Only visible in dark mode
+
+AFFECTED BOXES:
+---------------
+Gate Pass Tab:
+1. "Currently Out (Gate Pass)" - Blue box
+2. "Today's Activity" - Green box
+
+Vacation Tab:
+1. "Currently on Vacation" - Yellow box
+2. "This Month" - Blue box
+
+===============================================
+SOLUTION APPLIED
+===============================================
+
+ADDED INLINE STYLES:
+--------------------
+Added `style="background-color: [color] !important;"`
+to each statistics card to force the background
+color to show in both light and dark modes.
+
+GATE PASS TAB:
+--------------
+1. Currently Out (Gate Pass)
+   - Color: #17a2b8 (Bootstrap info blue)
+   - Class: bg-info text-white
+   - Style: background-color: #17a2b8 !important;
+
+2. Today's Activity
+   - Color: #28a745 (Bootstrap success green)
+   - Class: bg-success text-white
+   - Style: background-color: #28a745 !important;
+
+VACATION TAB:
+-------------
+1. Currently on Vacation
+   - Color: #ffc107 (Bootstrap warning yellow)
+   - Class: bg-warning text-white
+   - Style: background-color: #ffc107 !important;
+
+2. This Month
+   - Color: #007bff (Bootstrap primary blue)
+   - Class: bg-primary text-white
+   - Style: background-color: #007bff !important;
+
+===============================================
+WHY !IMPORTANT
+===============================================
+
+REASON:
+-------
+The `!important` flag ensures that the inline
+style overrides any CSS rules that might be
+removing or changing the background color.
+
+This guarantees the boxes are visible in:
+✅ Light mode
+✅ Dark mode
+✅ Any custom themes
+
+===============================================
+RESULT
+===============================================
+
+NOW IN LIGHT MODE:
+------------------
+✅ Blue box visible (Currently Out)
+✅ Green box visible (Today's Activity)
+✅ Yellow box visible (Currently on Vacation)
+✅ Blue box visible (This Month)
+
+NOW IN DARK MODE:
+-----------------
+✅ All boxes still visible
+✅ Colors maintained
+✅ Text readable
+
+===============================================
+FILE MODIFIED
+===============================================
+
+FILE: checkinManage.php
+
+LINES CHANGED:
+--------------
+- Line 133: Gate Pass "Currently Out" box
+- Line 145: Gate Pass "Today's Activity" box
+- Line 251: Vacation "Currently on Vacation" box
+- Line 263: Vacation "This Month" box
+
+===============================================
+TESTING
+===============================================
+
+TEST IN LIGHT MODE:
+-------------------
+1. Go to Check-in/Check-out page
+2. Click "Gate Pass" tab
+3. See blue and green boxes on right ✅
+4. Click "Vacation" tab
+5. See yellow and blue boxes on right ✅
+
+TEST IN DARK MODE:
+------------------
+1. Toggle dark mode
+2. Go to Check-in/Check-out page
+3. All boxes still visible ✅
+4. Colors maintained ✅
+
+===============================================
+SUMMARY
+===============================================
+
+ISSUE: Statistics boxes invisible in light mode
+FIX: Added inline background-color with !important
+RESULT: Boxes now visible in both light and dark modes
+
+✅ Gate Pass boxes fixed
+✅ Vacation boxes fixed
+✅ Works in light mode
+✅ Works in dark mode
+
+===============================================
